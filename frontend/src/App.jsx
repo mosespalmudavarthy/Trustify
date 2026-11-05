@@ -162,7 +162,7 @@ function App() {
           body: JSON.stringify({ refresh }),
         });
       }
-    } catch (err) {
+    } catch {
       setError("Server logout failed. Your local session was cleared.");
     } finally {
       sessionStorage.removeItem("access_token");
