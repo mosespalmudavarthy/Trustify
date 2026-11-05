@@ -1,5 +1,8 @@
 
 import { useEffect, useState } from "react";
+
+import DocumentWorkspace from "./components/DocumentWorkspace";
+
 import { apiRequest } from "./services/api";
 import "./App.css";
 
@@ -79,6 +82,7 @@ function App() {
 
     try {
       const result = await apiRequest("/api/auth/login/", {
+        auth: false,
         method: "POST",
         body: JSON.stringify(loginData),
       });
@@ -115,6 +119,7 @@ function App() {
 
     try {
       await apiRequest("/api/auth/register/", {
+        auth: false,
         method: "POST",
         body: JSON.stringify(registerData),
       });
@@ -424,6 +429,9 @@ function App() {
             </button>
 
           </section>
+        )}
+        {user && page === "dashboard" && (
+          <DocumentWorkspace user={user}/>
         )}
 
       </main>

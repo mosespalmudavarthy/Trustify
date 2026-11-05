@@ -21,6 +21,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         model = User
 
         fields = [
+            'id',
             'username',
             'email',
             'first_name',
@@ -28,6 +29,8 @@ class RegisterSerializer(serializers.ModelSerializer):
             'password',
             'password_confirm'
         ]
+
+        read_only_fields = ['id']
 
     def validate_email(self, value):
 
@@ -78,6 +81,7 @@ class UserSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'is_staff',
+            'is_superuser',
             'date_joined'
         ]
 
