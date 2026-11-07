@@ -11,6 +11,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 
 from .serializers import RegisterSerializer, UserSerializer
+from .auth_serializers import AuditedTokenObtainPairSerializer
 
 
 class RegisterView(APIView):
@@ -42,7 +43,7 @@ class RegisterView(APIView):
 class LoginView(TokenObtainPairView):
 
     permission_classes = [AllowAny]
-
+    serializer_class = AuditedTokenObtainPairSerializer
 
 class ProfileView(APIView):
 

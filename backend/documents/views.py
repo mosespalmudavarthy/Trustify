@@ -1,5 +1,7 @@
 import hashlib
 
+from auditlog.services import record_event
+
 from django.http import FileResponse
 
 from pathlib import Path
@@ -101,8 +103,8 @@ class DocumentDetailView(APIView):
 
         if not can_view_document(request.user, document):
 
-            AuditEvent.objects.create(
-                actor=request.user,
+            record_event(
+                request=request,
                 document=document,
                 action='ACCESS_DENIED',
                 description='Unauthorized document access attempt.'
@@ -212,8 +214,8 @@ class GrantDocumentPermissionView(APIView):
                     granted_by=request.user
                 )
 
-            AuditEvent.objects.create(
-                actor=request.user,
+            record_event(
+                request=request,
                 document=document,
                 target_user=target_user,
                 action='PERMISSION_GRANTED',
@@ -289,8 +291,8 @@ class RevokeDocumentPermissionView(APIView):
             permission.revoked_at = timezone.now()
             permission.save(update_fields=['revoked_at'])
 
-            AuditEvent.objects.create(
-                actor=request.user,
+            record_event(
+                request=request,
                 document=document,
                 target_user=permission.user,
                 action='PERMISSION_REVOKED',
@@ -333,8 +335,8 @@ class DocumentUpdateView(APIView):
 
             serializer.save()
 
-            AuditEvent.objects.create(
-                actor=request.user,
+            record_event(
+                request=request,
                 document=document,
                 action='DOCUMENT_UPDATE',
                 description='Document metadata updated.'
@@ -428,8 +430,8 @@ class DocumentUploadView(APIView):
                     change_note='Initial document upload'
                 )
 
-                AuditEvent.objects.create(
-                    actor=request.user,
+                record_event(
+                    request=request,
                     document=document,
                     action='DOCUMENT_UPLOAD',
                     description='Document uploaded successfully.',
@@ -472,8 +474,8 @@ class DocumentDownloadView(APIView):
         # Verify current document authorization.
         if not can_view_document(request.user, document):
 
-            AuditEvent.objects.create(
-                actor=request.user,
+            record_event(
+                request=request,
                 document=document,
                 action='ACCESS_DENIED',
                 description='Unauthorized document download attempt.'
@@ -517,8 +519,8 @@ class DocumentDownloadView(APIView):
             )
 
         # Record successful download.
-        AuditEvent.objects.create(
-            actor=request.user,
+        record_event(
+            request=request,
             document=document,
             action='DOCUMENT_DOWNLOAD',
             description='Document downloaded successfully.',
@@ -601,8 +603,8 @@ class DocumentVersionUploadView(APIView):
         # permission can upload a new version.
         if not can_edit_document(request.user, document):
 
-            AuditEvent.objects.create(
-                actor=request.user,
+            record_event(
+                request=request,
                 document=document,
                 action='ACCESS_DENIED',
                 description='Unauthorized document version upload attempt.'
@@ -711,8 +713,8 @@ class DocumentVersionUploadView(APIView):
                     ]
                 )
 
-                AuditEvent.objects.create(
-                    actor=request.user,
+                record_event(
+                    request=request,
                     document=locked_document,
                     action='VERSION_CREATED',
                     description='New document version uploaded successfully.',

@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'api',
     'documents',
     'auditlog',
+    'administration.apps.AdministrationConfig',
 ]
 
 MIDDLEWARE = [

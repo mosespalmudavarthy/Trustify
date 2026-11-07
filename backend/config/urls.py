@@ -11,4 +11,6 @@ urlpatterns = [
 
     path('api/documents/', include('documents.urls')),
 
+    path('api/administration/', include('administration.urls')),
+
 ]

@@ -17,6 +17,11 @@ class AuditEvent(models.Model):
         ('PERMISSION_GRANTED', 'Permission Granted'),
         ('PERMISSION_REVOKED', 'Permission Revoked'),
         ('ACCESS_DENIED', 'Access Denied'),
+        ('USER_ACTIVATED', 'User Activated'),
+        ('USER_DEACTIVATED', 'User Deactivated'),
+        ('STAFF_PRIVILEGE_CHANGED', 'Staff Privilege Changed'),
+        ('SUPERUSER_PRIVILEGE_CHANGED', 'Superuser Privilege Changed'),
+        ('USER_DETAILS_UPDATED', 'User Details Updated'),
     ]
 
     actor = models.ForeignKey(
