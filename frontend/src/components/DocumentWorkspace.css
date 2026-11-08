@@ -1,7 +1,13 @@
 
+/* =========================================
+   TRUSTIFY — DOCUMENT WORKSPACE
+   Desktop, tablet and mobile responsive UI
+   ========================================= */
+
 .document-workspace {
   width: 100%;
   max-width: 1100px;
+  min-width: 0;
   margin: 35px auto;
 }
 
@@ -30,6 +36,7 @@
 
 .secondary-button {
   padding: 11px 17px;
+  min-height: 40px;
   border: 1px solid #dce2ec;
   border-radius: 8px;
   background: white;
@@ -43,11 +50,14 @@
   cursor: not-allowed;
 }
 
+/* Messages */
+
 .workspace-message {
   padding: 13px 16px;
   margin-bottom: 18px;
   border-radius: 8px;
   font-size: 14px;
+  overflow-wrap: anywhere;
 }
 
 .workspace-error {
@@ -62,8 +72,11 @@
   border: 1px solid #c6ecd6;
 }
 
+/* Main cards */
+
 .upload-card,
 .document-list-card {
+  min-width: 0;
   padding: 25px;
   margin-bottom: 25px;
   background: white;
@@ -79,12 +92,17 @@
   font-size: 19px;
 }
 
-.upload-card form {
+/* Upload form */
+
+.upload-card form,
+.version-upload-form {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
-.upload-card label {
+.upload-card label,
+.version-upload-form label {
   margin: 14px 0 8px;
   font-size: 14px;
   font-weight: 600;
@@ -92,8 +110,15 @@
 
 .upload-card input,
 .upload-card textarea,
-.document-search {
+.document-search,
+.version-upload-form input,
+.version-upload-form textarea,
+.permission-form input,
+.permission-form select {
+  box-sizing: border-box;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   padding: 12px 14px;
   border: 1px solid #dce2ec;
   border-radius: 8px;
@@ -104,13 +129,18 @@
 
 .upload-card input:focus,
 .upload-card textarea:focus,
-.document-search:focus {
+.document-search:focus,
+.version-upload-form input:focus,
+.version-upload-form textarea:focus,
+.permission-form input:focus,
+.permission-form select:focus {
   outline: none;
   border-color: #3156d3;
   box-shadow: 0 0 0 3px rgba(49, 86, 211, 0.1);
 }
 
-.upload-card textarea {
+.upload-card textarea,
+.version-upload-form textarea {
   resize: vertical;
 }
 
@@ -119,12 +149,14 @@
   margin: 9px 0 0;
   color: #758096;
   font-size: 13px;
+  overflow-wrap: anywhere;
 }
 
 .selected-file {
   color: #3156d3;
-  overflow-wrap: anywhere;
 }
+
+/* Document library */
 
 .document-list-heading {
   margin-bottom: 17px;
@@ -145,11 +177,17 @@
 
 .document-table-wrapper {
   width: 100%;
+  max-width: 100%;
   overflow-x: auto;
+  overscroll-behavior-x: contain;
+  border: 1px solid #e6eaf1;
+  border-radius: 9px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .document-table {
   width: 100%;
+  min-width: 760px;
   border-collapse: collapse;
   text-align: left;
   font-size: 13px;
@@ -168,6 +206,11 @@
   font-weight: 650;
 }
 
+.document-table td:first-child {
+  min-width: 180px;
+  white-space: normal;
+}
+
 .document-table td strong,
 .document-filename {
   display: block;
@@ -175,17 +218,19 @@
 
 .document-table td strong {
   color: #172b4d;
+  overflow-wrap: anywhere;
 }
 
 .document-filename {
   max-width: 260px;
   margin-top: 5px;
   color: #929bad;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .document-status {
+  display: inline-block;
   padding: 5px 9px;
   border-radius: 20px;
   background: #eaf8f0;
@@ -200,50 +245,19 @@
   text-align: center;
 }
 
-@media (max-width: 650px) {
-  .workspace-heading {
-    align-items: flex-start;
-  }
-
-  .upload-card,
-  .document-list-card {
-    padding: 18px 14px;
-  }
-
-  .workspace-heading h2 {
-    font-size: 23px;
-  }
-}
-
-.download-button {
-  padding: 8px 13px;
-  border: 1px solid #3156d3;
-  border-radius: 7px;
-  background: white;
-  color: #3156d3;
-  font-size: 12px;
-  font-weight: 650;
-  cursor: pointer;
-}
-
-.download-button:hover {
-  background: #3156d3;
-  color: white;
-}
-
-.download-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
+/* Document actions */
 
 .document-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 7px;
+  gap: 8px;
+  min-width: 180px;
 }
 
+.download-button,
 .history-button {
-  padding: 8px 12px;
+  padding: 8px 13px;
+  min-height: 38px;
   border: 1px solid #dce2ec;
   border-radius: 7px;
   background: white;
@@ -253,16 +267,48 @@
   cursor: pointer;
 }
 
+.download-button {
+  border-color: #3156d3;
+}
+
+.download-button:hover {
+  background: #3156d3;
+  color: white;
+}
+
 .history-button:hover {
   background: #eef1fa;
 }
 
+.download-button:disabled,
 .history-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.version-panel {
+/* Primary button */
+
+.primary-button {
+  padding: 11px 17px;
+  min-height: 42px;
+  border: 1px solid #3156d3;
+  border-radius: 8px;
+  background: #3156d3;
+  color: white;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.primary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Version history */
+
+.version-panel,
+.permission-panel {
+  min-width: 0;
   margin-top: 20px;
   padding: 22px;
   border: 1px solid #e5e9f0;
@@ -271,7 +317,9 @@
 }
 
 .version-heading h4,
-.version-upload-form h4 {
+.version-upload-form h4,
+.permission-panel h4,
+.permission-list h5 {
   margin: 0 0 16px;
   color: #172b4d;
 }
@@ -283,10 +331,12 @@
 }
 
 .version-item {
+  min-width: 0;
   padding: 16px;
   border: 1px solid #e5e9f0;
   border-radius: 9px;
   background: white;
+  overflow-wrap: anywhere;
 }
 
 .version-item > div {
@@ -295,6 +345,7 @@
   justify-content: space-between;
   gap: 10px;
   margin-bottom: 9px;
+  min-width: 0;
 }
 
 .version-item strong {
@@ -306,6 +357,7 @@
   color: #758096;
   font-size: 13px;
   overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .version-item p {
@@ -322,49 +374,12 @@
 }
 
 .version-upload-form {
-  display: flex;
-  flex-direction: column;
   margin-top: 22px;
   padding-top: 20px;
   border-top: 1px solid #e5e9f0;
 }
 
-.version-upload-form label {
-  margin: 12px 0 8px;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.version-upload-form input,
-.version-upload-form textarea {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #dce2ec;
-  border-radius: 8px;
-  background: white;
-  font: inherit;
-}
-
-.version-upload-form textarea {
-  resize: vertical;
-}
-
-
-/* Document permission management */
-
-.permission-panel {
-  margin-top: 20px;
-  padding: 22px;
-  border: 1px solid #e5e9f0;
-  border-radius: 10px;
-  background: #f8f9fc;
-}
-
-.permission-panel h4,
-.permission-list h5 {
-  margin: 0 0 16px;
-  color: #172b4d;
-}
+/* Document permissions */
 
 .permission-form {
   display: flex;
@@ -377,16 +392,6 @@
 .permission-form label {
   font-size: 14px;
   font-weight: 600;
-}
-
-.permission-form input,
-.permission-form select {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #dce2ec;
-  border-radius: 8px;
-  background: white;
-  font: inherit;
 }
 
 .permission-list {
@@ -403,11 +408,13 @@
   border: 1px solid #e5e9f0;
   border-radius: 8px;
   background: white;
+  overflow-wrap: anywhere;
 }
 
 .permission-item strong,
 .permission-item span {
   display: block;
+  overflow-wrap: anywhere;
 }
 
 .permission-item strong {
@@ -422,6 +429,7 @@
 
 .revoke-button {
   padding: 8px 12px;
+  min-height: 38px;
   border: 1px solid #e4b9bd;
   border-radius: 7px;
   background: white;
@@ -435,12 +443,428 @@
   cursor: not-allowed;
 }
 
+/* =========================================
+   TABLET RESPONSIVENESS
+   ========================================= */
+
+@media (max-width: 900px) {
+  .document-workspace {
+    max-width: 100%;
+  }
+}
+
+/* =========================================
+   MOBILE DOCUMENT CARD LAYOUT
+   ========================================= */
+
 @media (max-width: 650px) {
+  .document-workspace {
+    margin: 22px auto;
+  }
+
+  .workspace-heading {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  .workspace-heading h2 {
+    font-size: 23px;
+  }
+
+  .workspace-heading .secondary-button {
+    width: 100%;
+  }
+
+  .upload-card,
+  .document-list-card {
+    padding: 18px 14px;
+    border-radius: 11px;
+  }
+
+  .document-list-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .document-search {
+    font-size: 16px;
+  }
+
+  /* Replace table presentation with stacked cards. */
+
+  .document-table-wrapper {
+    overflow: visible;
+    border: none;
+    border-radius: 0;
+  }
+
+  .document-table {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    border-collapse: separate;
+  }
+
+  .document-table thead {
+    display: none;
+  }
+
+  .document-table tbody {
+    display: block;
+    width: 100%;
+  }
+
+  .document-table tbody tr {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    margin-bottom: 16px;
+    padding: 12px;
+    border: 1px solid #e1e7f0;
+    border-radius: 10px;
+    background: white;
+    box-shadow: 0 3px 12px rgba(25, 40, 75, 0.04);
+  }
+
+  .document-table tbody td {
+    display: grid;
+    grid-template-columns: minmax(75px, 0.7fr) minmax(0, 1.3fr);
+    align-items: start;
+    gap: 10px;
+    width: 100%;
+    min-width: 0;
+    padding: 11px 2px;
+    border-bottom: 1px solid #edf0f5;
+    white-space: normal;
+    text-align: right;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  /* Automatically display the column names. */
+
+  .document-table tbody td:nth-child(1)::before {
+    content: "Document";
+  }
+
+  .document-table tbody td:nth-child(2)::before {
+    content: "Owner";
+  }
+
+  .document-table tbody td:nth-child(3)::before {
+    content: "Size";
+  }
+
+  .document-table tbody td:nth-child(4)::before {
+    content: "Status";
+  }
+
+  .document-table tbody td:nth-child(5)::before {
+    content: "Uploaded";
+  }
+
+  .document-table tbody td:nth-child(6)::before {
+    content: "Actions";
+  }
+
+  .document-table tbody td::before {
+    color: #758096;
+    font-size: 12px;
+    font-weight: 650;
+    text-align: left;
+  }
+
+  .document-table tbody td:first-child {
+    min-width: 0;
+    text-align: left;
+  }
+
+  .document-table tbody td:first-child strong,
+  .document-table tbody td:first-child .document-filename {
+    grid-column: 1 / -1;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .document-table tbody td:first-child::before {
+    grid-column: 1 / -1;
+  }
+
+  .document-table tbody td[data-label="Document"] {
+    display: block;
+  }
+
+  .document-table tbody td[data-label="Document"] strong,
+  .document-table tbody td[data-label="Document"] .document-filename {
+    display: block;
+  }
+
+  .document-table tbody td:nth-child(6) {
+    display: block;
+    border-bottom: none;
+    text-align: left;
+  }
+
+  .document-table tbody td:nth-child(6)::before {
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  .document-status {
+    justify-self: end;
+  }
+
+  .document-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    min-width: 0;
+    gap: 8px;
+  }
+
+  .document-actions button {
+    width: 100%;
+    min-height: 42px;
+  }
+
+  .version-panel,
   .permission-panel {
-    padding: 16px;
+    padding: 14px;
+  }
+
+  .version-item {
+    padding: 13px;
+  }
+
+  .version-item > div {
+    flex-direction: column;
+    gap: 7px;
   }
 
   .permission-item {
-    align-items: flex-start;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .permission-item .revoke-button {
+    width: 100%;
+  }
+
+  .version-upload-form .primary-button,
+  .permission-form .primary-button {
+    width: 100%;
+  }
+}
+
+/* =========================================
+   SMALL MOBILE
+   ========================================= */
+
+@media (max-width: 380px) {
+  .upload-card,
+  .document-list-card {
+    padding: 15px 11px;
+  }
+
+  .workspace-heading h2 {
+    font-size: 21px;
+  }
+
+  .version-panel,
+  .permission-panel {
+    padding: 11px;
+  }
+
+  .document-table tbody tr {
+    padding: 10px;
+  }
+
+  .document-table tbody td {
+    grid-template-columns: minmax(65px, 0.65fr) minmax(0, 1.35fr);
+    gap: 7px;
+    font-size: 12px;
+  }
+}
+
+
+/* ===== Dark Trustify workspace component refinement ===== */
+.document-workspace {
+  max-width: 1440px;
+  margin: 28px auto;
+}
+.workspace-heading h2,
+.upload-card h3,
+.document-list-card h3 {
+  color: #eef3ff;
+}
+.workspace-heading p,
+.document-list-heading span,
+.file-hint,
+.empty-state {
+  color: #a9bad7;
+}
+.upload-card,
+.document-list-card {
+  background: linear-gradient(150deg, #122440, #0e1d34);
+  border-color: #2a4164;
+  box-shadow: 0 12px 32px rgba(0,0,0,.16);
+}
+.upload-card label,
+.version-upload-form label,
+.permission-form label {
+  color: #c5d3eb;
+}
+.upload-card input,
+.upload-card textarea,
+.document-search,
+.version-upload-form input,
+.version-upload-form textarea,
+.permission-form input,
+.permission-form select {
+  background: #09172c;
+  color: #eef3ff;
+  border-color: #344d72;
+  color-scheme: dark;
+}
+.upload-card input::placeholder,
+.upload-card textarea::placeholder,
+.document-search::placeholder,
+.version-upload-form textarea::placeholder,
+.permission-form input::placeholder {
+  color: #8498ba;
+}
+.secondary-button,
+.download-button,
+.history-button {
+  background: #172d4e;
+  color: #c4d3ff;
+  border-color: #3a5684;
+}
+.secondary-button:hover,
+.history-button:hover {
+  background: #213d68;
+  color: #fff;
+}
+.download-button {
+  background: #3158cf;
+  border-color: #5276e6;
+  color: #fff;
+}
+.download-button:hover {
+  background: #456ce6;
+  color: #fff;
+}
+.document-table-wrapper {
+  border-color: #30496e;
+  background: #0d1d34;
+}
+.document-table {
+  color: #e5edfc;
+}
+.document-table th {
+  color: #c5d3eb;
+  background: #1a3153;
+  border-color: #30496e;
+}
+.document-table td {
+  border-color: #263e60;
+  background: #10223d;
+}
+.document-table tbody tr:nth-child(even) td {
+  background: #132744;
+}
+.document-table tbody tr:hover td {
+  background: #1a3153;
+}
+.document-table td strong {
+  color: #f0f5ff;
+}
+.document-filename {
+  color: #a9bad7;
+}
+.document-status {
+  background: #123e37;
+  color: #9ce8ce;
+}
+.version-panel,
+.permission-panel {
+  background: linear-gradient(150deg, #142947, #10213b);
+  border-color: #30496e;
+  color: #eaf1ff;
+}
+.version-heading h4,
+.version-upload-form h4,
+.permission-panel h4,
+.permission-list h5 {
+  color: #f0f5ff;
+}
+.version-item,
+.permission-item {
+  background: #0d1d34;
+  border-color: #30496e;
+  color: #eaf1ff;
+}
+.version-item strong,
+.permission-item strong {
+  color: #f0f5ff;
+}
+.version-item span,
+.version-item p,
+.permission-item span {
+  color: #a9bad7;
+}
+.version-current {
+  background: #123e37;
+  color: #9ce8ce !important;
+}
+.version-upload-form,
+.permission-form {
+  border-color: #30496e;
+}
+.revoke-button {
+  background: #351d2a;
+  border-color: #874354;
+  color: #ffb9c5;
+}
+.revoke-button:hover {
+  background: #512333;
+}
+.workspace-error {
+  background: #421e2b;
+  border-color: #874354;
+  color: #ffd3dc;
+}
+.workspace-success {
+  background: #123b35;
+  border-color: #286d5d;
+  color: #b8f1df;
+}
+@media (max-width: 650px) {
+  .document-table tbody tr {
+    background: #10223d;
+    border-color: #30496e;
+    box-shadow: 0 5px 18px rgba(0,0,0,.13);
+  }
+  .document-table tbody td {
+    background: transparent !important;
+    color: #e5edfc;
+    border-color: #263e60;
+  }
+  .document-table tbody td::before {
+    color: #a9bad7;
+  }
+  .document-table tbody td strong {
+    color: #f0f5ff;
+  }
+  .document-table tbody td .document-filename {
+    color: #a9bad7;
+  }
+  .document-table tbody tr:hover td {
+    background: transparent !important;
   }
 }

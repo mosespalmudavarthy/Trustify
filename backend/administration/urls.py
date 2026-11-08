@@ -6,6 +6,9 @@ from .views import (
     AdministrationUserDetailView,
     AdministrationUserStatusView,
     AdministrationUserPrivilegesView,
+    AdministrationAuditEventListView,
+    AdministrationAuditEventDetailView,
+    AdministrationAuditIntegrityView,
 )
 
 
@@ -32,7 +35,22 @@ urlpatterns = [
     ),
     path(
         "users/<int:user_id>/privileges/",
-         AdministrationUserPrivilegesView.as_view(),
-         name="administration-user-privileges",
+        AdministrationUserPrivilegesView.as_view(),
+        name="administration-user-privileges",
+    ),
+    path(
+        "audit-events/",
+        AdministrationAuditEventListView.as_view(),
+        name="administration-audit-event-list",
+    ),
+    path(
+        "audit-events/<int:event_id>/",
+        AdministrationAuditEventDetailView.as_view(),
+        name="administration-audit-event-detail",
+    ),
+    path(
+        "audit-integrity/",
+        AdministrationAuditIntegrityView.as_view(),
+        name="administration-audit-integrity",
     ),
 ]

@@ -4,6 +4,7 @@ import hmac
 import json
 
 from django.db import connection, transaction
+from django.utils import timezone
 
 from .models import AuditEvent
 
@@ -120,6 +121,7 @@ def verify_event_chain():
         return _verify_event_chain()
 
 
+
 def record_event(
     *,
     action,
@@ -131,7 +133,7 @@ def record_event(
     metadata=None,
 ):
     """
-    Create and hash an audit event transactionally.
+    Create a fully hashed audit event using one INSERT.
 
     Refuses to append events if the existing chain is invalid.
     """
@@ -159,8 +161,7 @@ def record_event(
         user_agent = ""
 
         if request is not None:
-            # Use REMOTE_ADDR rather than trusting an unverified
-            # X-Forwarded-For header.
+            # Do not trust an unverified X-Forwarded-For header.
             ip_address = request.META.get("REMOTE_ADDR")
             user_agent = request.META.get("HTTP_USER_AGENT", "")
 
@@ -174,7 +175,23 @@ def record_event(
             else ""
         )
 
-        event = AuditEvent.objects.create(
+        # Reserve an identity value while holding the audit lock.
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT nextval(
+                    pg_get_serial_sequence(%s, %s)
+                )
+                """,
+                [AuditEvent._meta.db_table, "id"],
+            )
+            event_id = cursor.fetchone()[0]
+
+        # Generate the timestamp before calculating the hash.
+        created_at = timezone.now()
+
+        event = AuditEvent(
+            pk=event_id,
             actor=actor,
             document=document,
             target_user=target_user,
@@ -182,12 +199,23 @@ def record_event(
             description=description,
             ip_address=ip_address,
             user_agent=user_agent,
-            metadata=metadata or {},
+            metadata=metadata if metadata is not None else {},
             previous_hash=previous_hash,
+            created_at=created_at,
         )
 
+        # Calculate the complete hash before inserting the event.
         event.event_hash = build_event_hash(event)
 
-        event.save(update_fields=["event_hash"])
+        # Exactly one INSERT. No subsequent UPDATE.
+        event.save(force_insert=True)
 
         return event
+
+    """
+    Create and hash an audit event transactionally.
+
+    Refuses to append events if the existing chain is invalid.
+    """
+
+    return event

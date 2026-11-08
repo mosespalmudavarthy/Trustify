@@ -15,6 +15,8 @@ from .serializers import (
     AdministrationUserSerializer,
     UserStatusSerializer,
     UserPrivilegeSerializer,
+    AuditEventListSerializer,
+    AuditEventDetailSerializer,
 )
 
 from django.http import Http404
@@ -347,3 +349,121 @@ class AdministrationUserPrivilegesView(APIView):
             "message": "User privileges updated successfully.",
             "user": AdministrationUserSerializer(target_user).data,
         }, status=status.HTTP_200_OK)
+
+class AdministrationAuditPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = "page_size"
+    max_page_size = 100
+
+
+class AdministrationAuditEventListView(APIView):
+
+    permission_classes = [IsActiveSuperuser]
+
+    def get(self, request):
+
+        events = AuditEvent.objects.select_related(
+            "actor",
+            "target_user",
+            "document",
+        ).order_by("-created_at", "-pk")
+
+        search = request.query_params.get("search", "").strip()
+        action = request.query_params.get("action", "").strip()
+        date_from = request.query_params.get("date_from", "").strip()
+        date_to = request.query_params.get("date_to", "").strip()
+
+        if search:
+            events = events.filter(
+                Q(description__icontains=search)
+                | Q(actor__username__icontains=search)
+                | Q(target_user__username__icontains=search)
+                | Q(document__title__icontains=search)
+            )
+
+        if action:
+            valid_actions = {
+                choice[0]
+                for choice in AuditEvent.ACTION_CHOICES
+            }
+
+            if action not in valid_actions:
+                raise ValidationError({
+                    "action": "Invalid audit event action."
+                })
+
+            events = events.filter(action=action)
+
+        if date_from:
+            from datetime import date
+
+            try:
+                parsed_date = date.fromisoformat(date_from)
+            except ValueError:
+                raise ValidationError({
+                    "date_from": "Use YYYY-MM-DD format."
+                })
+
+            events = events.filter(
+                created_at__date__gte=parsed_date
+            )
+
+        if date_to:
+            from datetime import date
+
+            try:
+                parsed_date = date.fromisoformat(date_to)
+            except ValueError:
+                raise ValidationError({
+                    "date_to": "Use YYYY-MM-DD format."
+                })
+
+            events = events.filter(
+                created_at__date__lte=parsed_date
+            )
+
+        paginator = AdministrationAuditPagination()
+
+        page = paginator.paginate_queryset(events, request)
+
+        serializer = AuditEventListSerializer(
+            page,
+            many=True,
+        )
+
+        return paginator.get_paginated_response(
+            serializer.data
+        )
+
+
+class AdministrationAuditEventDetailView(APIView):
+
+    permission_classes = [IsActiveSuperuser]
+
+    def get(self, request, event_id):
+
+        event = get_object_or_404(
+            AuditEvent.objects.select_related(
+                "actor",
+                "target_user",
+                "document",
+            ),
+            pk=event_id,
+        )
+
+        serializer = AuditEventDetailSerializer(event)
+
+        return Response(serializer.data)
+
+
+class AdministrationAuditIntegrityView(APIView):
+
+    permission_classes = [IsActiveSuperuser]
+
+    def get(self, request):
+
+        from auditlog.services import verify_event_chain
+
+        result = verify_event_chain()
+
+        return Response(result)

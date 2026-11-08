@@ -1,0 +1,232 @@
+
+.admin-user-details {
+  margin: 25px 0;
+  padding: 25px;
+  border: 1px solid #e1e7f0;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 5px 18px rgba(25, 40, 75, 0.04);
+}
+
+.admin-user-details-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 22px;
+}
+
+.admin-user-details-header h3 {
+  margin: 0;
+  color: #172b4d;
+  font-size: 22px;
+}
+
+.admin-user-details-header p {
+  margin: 7px 0 0;
+  color: #758096;
+  font-size: 13px;
+}
+
+.admin-detail-close {
+  padding: 9px 14px;
+  border: 1px solid #dce2ec;
+  border-radius: 7px;
+  background: white;
+  color: #536078;
+  cursor: pointer;
+}
+
+.admin-detail-information {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 25px;
+  padding: 10px 18px;
+  border-radius: 9px;
+  background: #f7f8fc;
+}
+
+.admin-detail-information > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 13px 0;
+  border-bottom: 1px solid #e5e9f0;
+  min-width: 0;
+}
+
+.admin-detail-information span {
+  color: #758096;
+  font-size: 12px;
+}
+
+.admin-detail-information strong {
+  color: #172b4d;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.admin-detail-actions {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e9edf3;
+}
+
+.admin-detail-actions h4 {
+  margin: 0 0 16px;
+  color: #172b4d;
+  font-size: 16px;
+}
+
+.admin-detail-button,
+.admin-danger-button {
+  padding: 10px 15px;
+  border: 1px solid #3156d3;
+  border-radius: 7px;
+  background: #3156d3;
+  color: white;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.admin-danger-button {
+  border-color: #c43d48;
+  background: #c43d48;
+}
+
+.admin-detail-button:disabled,
+.admin-danger-button:disabled,
+.admin-detail-close:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.admin-privilege-control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 15px 0;
+  border-bottom: 1px solid #edf0f5;
+}
+
+.admin-privilege-control strong {
+  color: #172b4d;
+  font-size: 14px;
+}
+
+.admin-privilege-control p {
+  margin: 5px 0 0;
+  color: #758096;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.admin-detail-note {
+  margin: 12px 0 0;
+  color: #758096;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.admin-detail-success {
+  margin-bottom: 16px;
+  padding: 12px 15px;
+  border: 1px solid #c6ecd6;
+  border-radius: 8px;
+  background: #eaf8f0;
+  color: #176b43;
+  font-size: 13px;
+}
+
+.admin-details-loading {
+  padding: 20px 0;
+  color: #758096;
+}
+
+@media (max-width: 600px) {
+  .admin-user-details {
+    padding: 18px;
+  }
+
+  .admin-detail-information {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-privilege-control {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+/* Phase 20: User details responsive refinements */
+
+.admin-user-details {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.admin-user-details-header > * {
+  min-width: 0;
+}
+
+.admin-detail-information {
+  min-width: 0;
+}
+
+.admin-privilege-control > * {
+  min-width: 0;
+}
+
+.admin-detail-button,
+.admin-danger-button,
+.admin-detail-close {
+  min-height: 40px;
+}
+
+@media (max-width: 600px) {
+  .admin-user-details {
+    margin: 18px 0;
+    padding: 16px;
+  }
+
+  .admin-user-details-header {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .admin-user-details-header h3 {
+    font-size: 20px;
+  }
+
+  .admin-detail-close {
+    width: 100%;
+  }
+
+  .admin-detail-information {
+    padding: 8px 14px;
+  }
+
+  .admin-privilege-control {
+    gap: 10px;
+  }
+
+  .admin-privilege-control button {
+    width: 100%;
+  }
+
+  .admin-detail-button,
+  .admin-danger-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 380px) {
+  .admin-user-details {
+    padding: 13px;
+  }
+
+  .admin-detail-information {
+    padding: 6px 10px;
+  }
+}

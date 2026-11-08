@@ -1,6 +1,7 @@
 
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 
 
 class AuditEvent(models.Model):
@@ -26,7 +27,7 @@ class AuditEvent(models.Model):
 
     actor = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         null=True,
         blank=True,
         related_name='audit_events'
@@ -34,7 +35,7 @@ class AuditEvent(models.Model):
 
     document = models.ForeignKey(
         'documents.Document',
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         null=True,
         blank=True,
         related_name='audit_events'
@@ -42,7 +43,7 @@ class AuditEvent(models.Model):
 
     target_user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         null=True,
         blank=True,
         related_name='received_audit_events'
@@ -68,7 +69,10 @@ class AuditEvent(models.Model):
 
     event_hash = models.CharField(max_length=64, blank=True)
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(
+    default=timezone.now,
+    editable=False,
+)
 
     class Meta:
 

@@ -1,0 +1,436 @@
+.admin-audit {
+  margin-bottom: 32px;
+  padding: 22px;
+  border: 1px solid #e6eaf1;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.admin-audit-heading,
+.admin-audit-detail-heading,
+.admin-audit-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.admin-audit-heading {
+  margin-bottom: 20px;
+}
+
+.admin-audit-heading h2 {
+  margin: 0;
+  color: #172b4d;
+  font-size: 21px;
+}
+
+.admin-audit-heading p,
+.admin-audit-detail-heading p {
+  margin: 7px 0 0;
+  color: #758096;
+  font-size: 13px;
+}
+
+.admin-audit-actions button,
+.admin-audit-filters button,
+.admin-audit-detail-heading button,
+.admin-audit-detail-button {
+  padding: 9px 13px;
+  border: 1px solid #dce2ec;
+  border-radius: 7px;
+  background: #fff;
+  color: #3156d3;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.admin-audit-actions button:disabled,
+.admin-audit-filters button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.admin-integrity-result {
+  margin-bottom: 18px;
+  padding: 15px;
+  border: 1px solid;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.admin-integrity-result.valid {
+  border-color: #b7e4c7;
+  background: #f0fff4;
+  color: #176b38;
+}
+
+.admin-integrity-result.invalid {
+  border-color: #ffd5d8;
+  background: #fff0f0;
+  color: #a52b35;
+}
+
+.admin-integrity-result p {
+  margin: 7px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.admin-audit-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.admin-audit-filters input,
+.admin-audit-filters select {
+  min-height: 39px;
+  padding: 8px 10px;
+  border: 1px solid #dce2ec;
+  border-radius: 7px;
+  background: #fff;
+  color: #35415a;
+  font-size: 13px;
+}
+
+.admin-audit-filters > input[type="search"] {
+  flex: 1 1 230px;
+}
+
+.admin-audit-filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  color: #758096;
+  font-size: 12px;
+}
+
+.admin-audit-count {
+  margin-bottom: 12px;
+  color: #758096;
+  font-size: 13px;
+}
+
+.admin-audit-table {
+  min-width: 1050px;
+}
+
+.admin-audit-action {
+  display: inline-block;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: #f1f4ff;
+  color: #3156d3;
+  font-size: 11px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.admin-audit-detail {
+  margin-top: 22px;
+  padding: 20px;
+  border: 1px solid #e6eaf1;
+  border-radius: 10px;
+  background: #f9faff;
+}
+
+.admin-audit-detail-heading {
+  margin-bottom: 18px;
+}
+
+.admin-audit-detail-heading h3 {
+  margin: 0;
+  color: #172b4d;
+}
+
+.admin-audit-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(120px, 180px) minmax(0, 1fr);
+  gap: 12px;
+  margin: 0 0 20px;
+  font-size: 13px;
+}
+
+.admin-audit-detail-grid dt {
+  color: #758096;
+  font-weight: 650;
+}
+
+.admin-audit-detail-grid dd {
+  margin: 0;
+  color: #35415a;
+  overflow-wrap: anywhere;
+}
+
+.admin-audit-detail h4 {
+  margin: 18px 0 8px;
+  color: #172b4d;
+  font-size: 13px;
+}
+
+.admin-audit-json,
+.admin-audit-hash {
+  display: block;
+  max-width: 100%;
+  padding: 12px;
+  border: 1px solid #e6eaf1;
+  border-radius: 7px;
+  background: #fff;
+  color: #35415a;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 650px) {
+  .admin-audit {
+    padding: 15px;
+  }
+
+  .admin-audit-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .admin-audit-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .admin-audit-detail-grid {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+
+  .admin-audit-detail-grid dd {
+    margin-bottom: 10px;
+  }
+}
+
+/* Phase 20: Audit activity responsive refinements */
+
+.admin-audit {
+  min-width: 0;
+}
+
+.admin-audit-heading > *,
+.admin-audit-detail-heading > * {
+  min-width: 0;
+}
+
+.admin-audit-filters {
+  min-width: 0;
+}
+
+.admin-audit-filters input,
+.admin-audit-filters select {
+  max-width: 100%;
+}
+
+.admin-audit-table {
+  width: 100%;
+}
+
+.admin-audit-actions button,
+.admin-audit-filters button,
+.admin-audit-detail-heading button,
+.admin-audit-detail-button {
+  min-height: 40px;
+}
+
+.admin-audit-detail {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.admin-audit-detail-grid {
+  min-width: 0;
+}
+
+.admin-audit-json,
+.admin-audit-hash {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+  .admin-audit {
+    padding: 18px;
+  }
+
+  .admin-audit-filters {
+    align-items: stretch;
+  }
+
+  .admin-audit-filters label {
+    flex: 1 1 180px;
+    min-width: 0;
+  }
+
+  .admin-audit-filters label input,
+  .admin-audit-filters label select {
+    width: 100%;
+  }
+
+  .admin-audit-detail-heading {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-audit {
+    padding: 13px;
+  }
+
+  .admin-audit-heading h2 {
+    font-size: 19px;
+  }
+
+  .admin-audit-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-audit-actions button {
+    width: 100%;
+  }
+
+  .admin-audit-filters label,
+  .admin-audit-filters > input[type="search"] {
+    flex-basis: 100%;
+  }
+
+  .admin-audit-filters button {
+    width: 100%;
+  }
+
+  .admin-audit-detail {
+    padding: 14px;
+  }
+
+  .admin-audit-detail-heading {
+    flex-direction: column;
+  }
+
+  .admin-audit-detail-heading button {
+    width: 100%;
+  }
+}
+
+/* Trustify dark theme: responsive audit event cards */
+.admin-audit .admin-table-wrapper {
+  min-width: 0;
+  border: 1px solid #294263;
+  border-radius: 12px;
+  background: #0d1c33;
+}
+
+.admin-audit .admin-audit-table {
+  width: 100%;
+  min-width: 1050px;
+  border-collapse: separate;
+  border-spacing: 0;
+  color: #eaf1ff;
+  background: #0d1c33;
+}
+
+.admin-audit .admin-audit-table thead th {
+  background: #1a2e4d;
+  color: #dce7ff;
+  border-bottom: 1px solid #30496d;
+}
+
+.admin-audit .admin-audit-table tbody tr {
+  background: #10213b;
+}
+
+.admin-audit .admin-audit-table tbody tr:nth-child(even) {
+  background: #132744;
+}
+
+.admin-audit .admin-audit-table tbody td {
+  color: #e5edfc;
+  border-bottom: 1px solid rgba(137, 163, 211, .16);
+}
+
+.admin-audit .admin-audit-action {
+  background: #203b65;
+  color: #c7d7ff;
+}
+
+.admin-audit .admin-audit-detail-button {
+  background: #1a2e4d;
+  border-color: #355174;
+  color: #c5d5ff;
+}
+
+@media (max-width: 650px) {
+  .admin-audit .admin-audit-table {
+    min-width: 0;
+    display: block;
+    background: transparent;
+  }
+
+  .admin-audit .admin-audit-table thead {
+    display: none;
+  }
+
+  .admin-audit .admin-audit-table tbody {
+    display: grid;
+    gap: 12px;
+    padding: 10px;
+  }
+
+  .admin-audit .admin-audit-table tbody tr {
+    display: block;
+    padding: 12px 14px;
+    border: 1px solid #294263;
+    border-radius: 11px;
+    background: linear-gradient(145deg, #142744, #0d1c33);
+    box-shadow: 0 5px 16px rgba(0, 0, 0, .12);
+  }
+
+  .admin-audit .admin-audit-table tbody td {
+    display: grid;
+    grid-template-columns: minmax(94px, 38%) minmax(0, 1fr);
+    align-items: start;
+    gap: 10px;
+    padding: 9px 0;
+    border: 0;
+    border-bottom: 1px solid rgba(137, 163, 211, .13);
+    color: #e5edfc;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+
+  .admin-audit .admin-audit-table tbody td:last-child {
+    border-bottom: 0;
+    padding-bottom: 2px;
+  }
+
+  .admin-audit .admin-audit-table tbody td::before {
+    color: #9eafcb;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .admin-audit .admin-audit-table tbody td:nth-child(1)::before { content: "Date and time"; }
+  .admin-audit .admin-audit-table tbody td:nth-child(2)::before { content: "Action"; }
+  .admin-audit .admin-audit-table tbody td:nth-child(3)::before { content: "Actor"; }
+  .admin-audit .admin-audit-table tbody td:nth-child(4)::before { content: "Target user"; }
+  .admin-audit .admin-audit-table tbody td:nth-child(5)::before { content: "Document"; }
+  .admin-audit .admin-audit-table tbody td:nth-child(6)::before { content: "Description"; }
+  .admin-audit .admin-audit-table tbody td:nth-child(7)::before { content: "Details"; }
+
+  .admin-audit .admin-audit-table .admin-audit-action {
+    justify-self: start;
+    white-space: normal;
+  }
+
+  .admin-audit .admin-audit-table .admin-audit-detail-button {
+    width: 100%;
+  }
+}

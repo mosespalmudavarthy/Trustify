@@ -2,9 +2,24 @@
 import { useEffect, useState } from "react";
 
 import DocumentWorkspace from "./components/DocumentWorkspace";
+import AdministrationDashboard from "./components/AdministrationDashboard";
 
 import { apiRequest } from "./services/api";
 import "./App.css";
+
+function TrustifyMark({ compact = false }) {
+  return (
+    <span className={`brand-mark${compact ? " brand-mark-compact" : ""}`} aria-hidden="true">
+      <svg viewBox="0 0 48 48" role="img" focusable="false">
+        <path d="M24 4 40 10v12c0 10.5-6.8 17.5-16 22C14.8 39.5 8 32.5 8 22V10L24 4Z" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinejoin="round" />
+        <rect x="16.5" y="21" width="15" height="12" rx="2.8" fill="none" stroke="currentColor" strokeWidth="2.6" />
+        <path d="M20 21v-3.5a4 4 0 0 1 8 0V21" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
+        <circle cx="24" cy="26.5" r="1.4" fill="currentColor" />
+        <path d="M24 28v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    </span>
+  );
+}
 
 function App() {
   const [page, setPage] = useState("login");
@@ -188,9 +203,29 @@ function App() {
 
       <header className="navbar">
         <div className="brand">
-          <span className="brand-icon">T</span>
+          <TrustifyMark />
           <span>Trustify</span>
         </div>
+
+        {user && user.is_superuser === true && (
+          <button
+            type="button"
+            className="logout-button admin-nav-button"
+            onClick={() => {
+              setError("");
+              setSuccess("");
+              setPage(
+                page === "administration"
+                  ? "dashboard"
+                  : "administration"
+              );
+            }}
+          >
+            {page === "administration"
+              ? "My Workspace"
+              : "Administration"}
+          </button>
+        )}
 
         {user && (
           <button
@@ -203,7 +238,11 @@ function App() {
         )}
       </header>
 
-      <main className="main-content">
+      <main
+        className={`main-content ${
+          user ? "main-content-authenticated" : "main-content-public"
+        }`}
+      >
 
         {error && (
           <div className="message error-message">
@@ -218,7 +257,20 @@ function App() {
         )}
 
         {!user && page === "login" && (
-          <section className="auth-card">
+          <div className="auth-layout">
+            <aside className="auth-intro" aria-label="About Trustify">
+              <div className="auth-intro-brand"><TrustifyMark compact /><span>TRUSTIFY</span></div>
+              <p className="auth-kicker">YOUR DOCUMENTS. YOUR CONTROL.</p>
+              <h1>Confidence in every document.</h1>
+              <p className="auth-intro-copy">A secure workspace to organize important files, control access and keep track of document activity.</p>
+              <div className="auth-feature-list">
+                <div><span className="auth-feature-icon">▣</span><span><strong>Protected storage</strong><small>Keep important documents in a private workspace.</small></span></div>
+                <div><span className="auth-feature-icon">⌑</span><span><strong>Controlled access</strong><small>Share documents with permissions you manage.</small></span></div>
+                <div><span className="auth-feature-icon">↺</span><span><strong>History and accountability</strong><small>Review document versions and recorded activity.</small></span></div>
+              </div>
+              <p className="auth-intro-foot">A clearer, more controlled way to manage documents.</p>
+            </aside>
+            <section className="auth-card">
 
             <div className="auth-heading">
               <h1>Welcome back</h1>
@@ -273,11 +325,24 @@ function App() {
               </button>
             </p>
 
-          </section>
+            </section>
+          </div>
         )}
 
         {!user && page === "register" && (
-          <section className="auth-card">
+          <div className="auth-layout auth-layout-register">
+            <aside className="auth-intro" aria-label="About Trustify">
+              <div className="auth-intro-brand"><TrustifyMark compact /><span>TRUSTIFY</span></div>
+              <p className="auth-kicker">SECURE DOCUMENT MANAGEMENT</p>
+              <h1>Make space for what matters.</h1>
+              <p className="auth-intro-copy">Create your account to organize documents, manage sharing and keep important activity visible.</p>
+              <div className="auth-feature-list">
+                <div><span className="auth-feature-icon">▣</span><span><strong>Private workspace</strong><small>Your documents stay organized in one place.</small></span></div>
+                <div><span className="auth-feature-icon">⌑</span><span><strong>Permission-based sharing</strong><small>Keep control over who can access your files.</small></span></div>
+                <div><span className="auth-feature-icon">↺</span><span><strong>Document history</strong><small>Follow versions and important activity.</small></span></div>
+              </div>
+            </aside>
+            <section className="auth-card">
 
             <div className="auth-heading">
               <h1>Create your account</h1>
@@ -372,22 +437,31 @@ function App() {
               </button>
             </p>
 
-          </section>
+            </section>
+          </div>
         )}
 
         {user && page === "dashboard" && (
           <section className="dashboard-card">
 
-            <div className="dashboard-heading">
-              <span className="status-indicator"></span>
-              <span>Authenticated successfully</span>
+            <div className="dashboard-welcome">
+              <div className="dashboard-heading">
+                <span className="status-indicator"></span>
+                <span>Authenticated successfully</span>
+              </div>
+
+              <h1>Welcome, {user.first_name || user.username}!</h1>
+
+              <p className="dashboard-description">
+                Your Trustify account is active. Your documents and account tools are ready.
+              </p>
+
+              <div className="dashboard-welcome-note">
+                <TrustifyMark compact />
+                <span>Secure document management, with control and accountability.</span>
+              </div>
+
             </div>
-
-            <h1>Welcome, {user.first_name || user.username}!</h1>
-
-            <p className="dashboard-description">
-              Your Trustify account is active.
-            </p>
 
             <div className="profile-section">
               <h2>Account Information</h2>
@@ -415,24 +489,25 @@ function App() {
               <div className="profile-row">
                 <span>Account type</span>
                 <strong>
-                  {user.is_staff ? "Staff" : "Standard User"}
+                  {user.is_superuser
+                    ? "Superuser"
+                    : user.is_staff
+                      ? "Staff"
+                      : "Standard User"}
                 </strong>
               </div>
             </div>
 
-            <button
-              className="primary-button"
-              onClick={handleLogout}
-              disabled={loading}
-            >
-              {loading ? "Signing out..." : "Sign Out"}
-            </button>
-
           </section>
         )}
         {user && page === "dashboard" && (
-          <DocumentWorkspace user={user}/>
+          <DocumentWorkspace user={user} />
         )}
+        {user &&
+          page === "administration" &&
+          user.is_superuser === true && (
+            <AdministrationDashboard user={user} />
+          )}
 
       </main>
 

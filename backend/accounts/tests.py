@@ -62,3 +62,83 @@ class LoginAuditTests(TestCase):
         self.assertNotIn("token", str(event.metadata).lower())
 
         self.assertTrue(verify_event_chain()["valid"])
+
+    def test_inactive_user_cannot_login(self):
+        self.user.is_active = False
+        self.user.save(update_fields=["is_active"])
+
+        response = self.client.post(
+            "/api/auth/login/",
+            {
+                "username": "login_test_user",
+                "password": self.password,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 401)
+        self.assertNotIn("access", response.data)
+        self.assertNotIn("refresh", response.data)
+
+        self.assertTrue(
+            AuditEvent.objects.filter(
+                action="LOGIN_FAILED"
+            ).exists()
+        )
+        self.assertFalse(
+            AuditEvent.objects.filter(
+                action="LOGIN_SUCCESS"
+            ).exists()
+        )
+
+    def test_inactive_user_cannot_refresh_existing_token(self):
+        login_response = self.client.post(
+            "/api/auth/login/",
+            {
+                "username": "login_test_user",
+                "password": self.password,
+            },
+            format="json",
+        )
+
+        self.assertEqual(login_response.status_code, 200)
+        refresh_token = login_response.data["refresh"]
+
+        self.user.is_active = False
+        self.user.save(update_fields=["is_active"])
+
+        response = self.client.post(
+            "/api/auth/refresh/",
+            {"refresh": refresh_token},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 401)
+        self.assertNotIn("access", response.data)
+
+    def test_active_user_can_refresh_token(self):
+        login_response = self.client.post(
+            "/api/auth/login/",
+            {
+                "username": "login_test_user",
+                "password": self.password,
+            },
+            format="json",
+        )
+
+        self.assertEqual(login_response.status_code, 200)
+        original_refresh = login_response.data["refresh"]
+
+        response = self.client.post(
+            "/api/auth/refresh/",
+            {"refresh": original_refresh},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("access", response.data)
+        self.assertIn("refresh", response.data)
+        self.assertNotEqual(
+            response.data["refresh"],
+            original_refresh,
+        )

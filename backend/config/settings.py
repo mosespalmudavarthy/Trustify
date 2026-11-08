@@ -29,9 +29,17 @@ if not SECRET_KEY:
         "DJANGO_SECRET_KEY environment variable is not configured."
     )
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Environment-controlled security configuration.
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.environ.get(
+        'DJANGO_ALLOWED_HOSTS',
+        'localhost,127.0.0.1'
+    ).split(',')
+    if host.strip()
+]
 
 
 # Application definition
@@ -57,6 +65,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -92,13 +101,28 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'trustify_db',
-        'USER': 'postgres',
+        'NAME': os.environ.get('DB_NAME', 'trustify_db'),
+        'USER': os.environ.get('DB_USER'),
         'PASSWORD': os.environ.get('DB_PASSWORD'),
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
+        'CONN_MAX_AGE': 0,
+        'OPTIONS': {
+            'sslmode': os.environ.get('DB_SSLMODE', 'prefer'),
+            'prepare_threshold': None,
+        },
     }
 }
+
+if not DATABASES['default']['USER']:
+    raise ImproperlyConfigured(
+        "DB_USER environment variable is not configured."
+    )
+
+if not DATABASES['default']['PASSWORD']:
+    raise ImproperlyConfigured(
+        "DB_PASSWORD environment variable is not configured."
+    )
 
 
 # Password validation
@@ -136,6 +160,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -143,7 +168,21 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
+    origin.strip()
+    for origin in os.environ.get(
+        'CORS_ALLOWED_ORIGINS',
+        'http://localhost:5173'
+    ).split(',')
+    if origin.strip()
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get(
+        'CSRF_TRUSTED_ORIGINS',
+        'http://localhost:5173'
+    ).split(',')
+    if origin.strip()
 ]
 REST_FRAMEWORK = {
 
@@ -174,3 +213,38 @@ SIMPLE_JWT = {
 # Trustify private document storage
 
 PRIVATE_STORAGE_ROOT = BASE_DIR.parent / "private_storage"
+
+# Production security settings.
+SECURE_SSL_REDIRECT = (
+    os.environ.get('DJANGO_SECURE_SSL_REDIRECT', 'False').lower()
+    == 'true'
+)
+
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = 'same-origin'
+
+SECURE_HSTS_SECONDS = int(
+    os.environ.get('DJANGO_SECURE_HSTS_SECONDS', '0')
+)
+
+SECURE_HSTS_INCLUDE_SUBDOMAINS = (
+    os.environ.get(
+        'DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS',
+        'False'
+    ).lower() == 'true'
+)
+
+SECURE_HSTS_PRELOAD = (
+    os.environ.get(
+        'DJANGO_SECURE_HSTS_PRELOAD',
+        'False'
+    ).lower() == 'true'
+)
+
+# Upload request limits.
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
+DATA_UPLOAD_MAX_MEMORY_SIZE = 25 * 1024 * 1024
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000

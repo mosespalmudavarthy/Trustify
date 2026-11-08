@@ -28,19 +28,19 @@ function formatDate(date) {
   return new Date(date).toLocaleDateString();
 }
 
-function DocumentWorkspace({user}) {
+function DocumentWorkspace({ user }) {
   const [documents, setDocuments] = useState([]);
   const [search, setSearch] = useState("");
   const [loadingDocuments, setLoadingDocuments] = useState(true);
   const [uploading, setUploading] = useState(false);
-const [downloadingId, setDownloadingId] = useState(null);
+  const [downloadingId, setDownloadingId] = useState(null);
 
-const [activeVersionDocumentId, setActiveVersionDocumentId] = useState(null);
-const [versions, setVersions] = useState([]);
-const [loadingVersions, setLoadingVersions] = useState(false);
-const [versionFile, setVersionFile] = useState(null);
-const [changeNote, setChangeNote] = useState("");
-const [uploadingVersion, setUploadingVersion] = useState(false);
+  const [activeVersionDocumentId, setActiveVersionDocumentId] = useState(null);
+  const [versions, setVersions] = useState([]);
+  const [loadingVersions, setLoadingVersions] = useState(false);
+  const [versionFile, setVersionFile] = useState(null);
+  const [changeNote, setChangeNote] = useState("");
+  const [uploadingVersion, setUploadingVersion] = useState(false);
 
   // Document permission management
   const [activePermissionDocumentId, setActivePermissionDocumentId] =
@@ -194,7 +194,7 @@ const [uploadingVersion, setUploadingVersion] = useState(false);
     }
   }
 
-    useEffect(() => {
+  useEffect(() => {
     const timer = setTimeout(() => {
       loadDocuments();
     }, 0);
@@ -526,18 +526,18 @@ const [uploadingVersion, setUploadingVersion] = useState(false);
               <thead>
                 <tr>
                   <th>Document</th>
-		<th>Owner</th>
-		<th>Size</th>
-		<th>Status</th>
-		<th>Uploaded</th>
-		<th>Action</th>
+                  <th>Owner</th>
+                  <th>Size</th>
+                  <th>Status</th>
+                  <th>Uploaded</th>
+                  <th>Action</th>
                 </tr>
               </thead>
 
               <tbody>
                 {filteredDocuments.map(document => (
                   <tr key={document.id}>
-                    <td>
+                    <td data-label="Document">
                       <strong>{document.title}</strong>
                       <span className="document-filename">
                         {document.original_filename}
@@ -555,45 +555,45 @@ const [uploadingVersion, setUploadingVersion] = useState(false);
                     </td>
 
                     <td>{formatDate(document.created_at)}</td>
-		<td>
-<div className="document-actions">
-  <button
-    type="button"
-    className="download-button"
-    onClick={() => handleDownload(document)}
-    disabled={downloadingId === document.id}
-  >
-    {downloadingId === document.id ? "Downloading..." : "Download"}
-  </button>
+                    <td>
+                      <div className="document-actions">
+                        <button
+                          type="button"
+                          className="download-button"
+                          onClick={() => handleDownload(document)}
+                          disabled={downloadingId === document.id}
+                        >
+                          {downloadingId === document.id ? "Downloading..." : "Download"}
+                        </button>
 
-  <button
-    type="button"
-    className="history-button"
-    onClick={() => handleViewVersions(document)}
-    disabled={loadingVersions}
-  >
-    {activeVersionDocumentId === document.id
-      ? "Hide History"
-      : "Version History"}
-  </button>
+                        <button
+                          type="button"
+                          className="history-button"
+                          onClick={() => handleViewVersions(document)}
+                          disabled={loadingVersions}
+                        >
+                          {activeVersionDocumentId === document.id
+                            ? "Hide History"
+                            : "Version History"}
+                        </button>
 
-  {canManageDocument(document) && (
-    <button
-      type="button"
-      className="history-button"
-      onClick={() => handleViewPermissions(document)}
-      disabled={loadingPermissions}
-    >
-      {activePermissionDocumentId === document.id
-        ? "Hide Access"
-        : "Manage Access"}
-    </button>
-  )}
+                        {canManageDocument(document) && (
+                          <button
+                            type="button"
+                            className="history-button"
+                            onClick={() => handleViewPermissions(document)}
+                            disabled={loadingPermissions}
+                          >
+                            {activePermissionDocumentId === document.id
+                              ? "Hide Access"
+                              : "Manage Access"}
+                          </button>
+                        )}
 
-</div></td>
+                      </div></td>
                   </tr>
                 ))}
-             </tbody>
+              </tbody>
             </table>
 
             {filteredDocuments.map(document => (
@@ -691,107 +691,107 @@ const [uploadingVersion, setUploadingVersion] = useState(false);
               )
             ))}
             <>
-                       {filteredDocuments.map(document => (
-              activePermissionDocumentId === document.id && (
-                <div className="permission-panel" key={`permissions-${document.id}`}>
-                  <h4>Manage Document Access — {document.title}</h4>
+              {filteredDocuments.map(document => (
+                activePermissionDocumentId === document.id && (
+                  <div className="permission-panel" key={`permissions-${document.id}`}>
+                    <h4>Manage Document Access — {document.title}</h4>
 
-                  {loadingPermissions ? (
-                    <p className="empty-state">Loading permissions...</p>
-                  ) : (
-                    <>
-                      <form
-                        className="permission-form"
-                        onSubmit={event =>
-                          handleShareDocument(event, document)
-                        }
-                      >
-                        <label htmlFor={`share-username-${document.id}`}>
-                          Username
-                        </label>
-
-                        <input
-                          id={`share-username-${document.id}`}
-                          type="text"
-                          value={shareUsername}
-                          onChange={event =>
-                            setShareUsername(event.target.value)
-                          }
-                          placeholder="Enter registered username"
-                          required
-                        />
-
-                        <label htmlFor={`share-level-${document.id}`}>
-                          Access level
-                        </label>
-
-                        <select
-                          id={`share-level-${document.id}`}
-                          value={shareAccessLevel}
-                          onChange={event =>
-                            setShareAccessLevel(event.target.value)
+                    {loadingPermissions ? (
+                      <p className="empty-state">Loading permissions...</p>
+                    ) : (
+                      <>
+                        <form
+                          className="permission-form"
+                          onSubmit={event =>
+                            handleShareDocument(event, document)
                           }
                         >
-                          <option value="READ">READ — View and download</option>
-                          <option value="EDIT">EDIT — View and upload versions</option>
-                        </select>
+                          <label htmlFor={`share-username-${document.id}`}>
+                            Username
+                          </label>
 
-                        <button
-                          type="submit"
-                          className="primary-button"
-                          disabled={sharing}
-                        >
-                          {sharing ? "Saving access..." : "Grant Access"}
-                        </button>
-                      </form>
+                          <input
+                            id={`share-username-${document.id}`}
+                            type="text"
+                            value={shareUsername}
+                            onChange={event =>
+                              setShareUsername(event.target.value)
+                            }
+                            placeholder="Enter registered username"
+                            required
+                          />
 
-                      <div className="permission-list">
-                        <h5>Users with access</h5>
+                          <label htmlFor={`share-level-${document.id}`}>
+                            Access level
+                          </label>
 
-                        {permissions.length === 0 ? (
-                          <p className="empty-state">
-                            No users have been granted access yet.
-                          </p>
-                        ) : (
-                          permissions.map(permission => (
-                            <div
-                              className="permission-item"
-                              key={permission.id}
-                            >
-                              <div>
-                                <strong>{permission.username}</strong>
-                                <span>
-                                  {permission.access_level} access
-                                </span>
-                              </div>
+                          <select
+                            id={`share-level-${document.id}`}
+                            value={shareAccessLevel}
+                            onChange={event =>
+                              setShareAccessLevel(event.target.value)
+                            }
+                          >
+                            <option value="READ">READ — View and download</option>
+                            <option value="EDIT">EDIT — View and upload versions</option>
+                          </select>
 
-                              <button
-                                type="button"
-                                className="revoke-button"
-                                onClick={() =>
-                                  handleRevokePermission(
-                                    document,
-                                    permission.id
-                                  )
-                                }
-                                disabled={
-                                  revokingPermissionId === permission.id
-                                }
+                          <button
+                            type="submit"
+                            className="primary-button"
+                            disabled={sharing}
+                          >
+                            {sharing ? "Saving access..." : "Grant Access"}
+                          </button>
+                        </form>
+
+                        <div className="permission-list">
+                          <h5>Users with access</h5>
+
+                          {permissions.length === 0 ? (
+                            <p className="empty-state">
+                              No users have been granted access yet.
+                            </p>
+                          ) : (
+                            permissions.map(permission => (
+                              <div
+                                className="permission-item"
+                                key={permission.id}
                               >
-                                {revokingPermissionId === permission.id
-                                  ? "Revoking..."
-                                  : "Revoke"}
-                              </button>
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    </>
-                  )}
-                </div>
-              )
-                        ))}
-          </>
+                                <div>
+                                  <strong>{permission.username}</strong>
+                                  <span>
+                                    {permission.access_level} access
+                                  </span>
+                                </div>
+
+                                <button
+                                  type="button"
+                                  className="revoke-button"
+                                  onClick={() =>
+                                    handleRevokePermission(
+                                      document,
+                                      permission.id
+                                    )
+                                  }
+                                  disabled={
+                                    revokingPermissionId === permission.id
+                                  }
+                                >
+                                  {revokingPermissionId === permission.id
+                                    ? "Revoking..."
+                                    : "Revoke"}
+                                </button>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )
+              ))}
+            </>
           </div>
         )}
       </div>

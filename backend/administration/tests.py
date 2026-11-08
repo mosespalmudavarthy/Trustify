@@ -4,7 +4,9 @@ from rest_framework.test import APITestCase
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from auditlog.models import AuditEvent
-from auditlog.services import verify_event_chain
+from auditlog.services import record_event, verify_event_chain
+from django.utils import timezone
+from datetime import timedelta
 from documents.models import Document, DocumentVersion
 
 
@@ -59,15 +61,18 @@ class AdministrationDashboardTests(APITestCase):
             email="dashboard_inactive@example.com",
             password="TestPassword123!",
         )
+
+        # Issue the token while the account is active.
+        self.authenticate_user(user)
+
+        # Deactivate the account after token issuance.
         user.is_active = False
         user.save(update_fields=["is_active"])
 
-        self.authenticate_user(user)
-
+        # The previously issued token must no longer work.
         response = self.client.get(self.dashboard_url)
 
         self.assertEqual(response.status_code, 401)
-
     def test_active_superuser_can_access_dashboard(self):
         user = User.objects.create_superuser(
             username="dashboard_admin",
@@ -400,4 +405,234 @@ class AdministrationDashboardTests(APITestCase):
                 is_superuser=True,
             ).count(),
             1,
+        )
+
+class AdministrationAuditAPITests(APITestCase):
+
+    def setUp(self):
+        self.admin = User.objects.create_superuser(
+            username="audit_api_admin",
+            email="audit_api_admin@example.com",
+            password="TestPassword123!",
+        )
+
+        self.target = User.objects.create_user(
+            username="audit_api_target",
+            password="TestPassword123!",
+        )
+
+        token = str(RefreshToken.for_user(self.admin).access_token)
+
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f"Bearer {token}"
+        )
+
+        self.list_url = "/api/administration/audit-events/"
+        self.integrity_url = "/api/administration/audit-integrity/"
+
+    def create_event(self, action, description, metadata=None):
+        return record_event(
+            action=action,
+            actor=self.admin,
+            target_user=self.target,
+            description=description,
+            metadata=metadata or {},
+        )
+
+    def test_superuser_can_list_audit_events(self):
+        self.create_event(
+            "LOGIN_SUCCESS",
+            "Successful test login",
+        )
+
+        response = self.client.get(self.list_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["count"], 1)
+        self.assertEqual(
+            response.data["results"][0]["action"],
+            "LOGIN_SUCCESS",
+        )
+
+    def test_audit_event_search(self):
+        self.create_event(
+            "LOGIN_SUCCESS",
+            "Unique searchable event",
+        )
+        self.create_event(
+            "LOGIN_FAILED",
+            "Different event",
+        )
+
+        response = self.client.get(
+            self.list_url,
+            {"search": "Unique searchable"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["count"], 1)
+
+    def test_audit_event_action_filter(self):
+        self.create_event("LOGIN_SUCCESS", "Successful login")
+        self.create_event("LOGIN_FAILED", "Failed login")
+
+        response = self.client.get(
+            self.list_url,
+            {"action": "LOGIN_FAILED"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["count"], 1)
+        self.assertEqual(
+            response.data["results"][0]["action"],
+            "LOGIN_FAILED",
+        )
+
+    def test_invalid_action_filter_is_rejected(self):
+        response = self.client.get(
+            self.list_url,
+            {"action": "INVALID_ACTION"},
+        )
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_invalid_date_filter_is_rejected(self):
+        response = self.client.get(
+            self.list_url,
+            {"date_from": "not-a-date"},
+        )
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_audit_event_pagination(self):
+        for number in range(3):
+            self.create_event(
+                "LOGIN_SUCCESS",
+                f"Pagination event {number}",
+            )
+
+        response = self.client.get(
+            self.list_url,
+            {"page_size": 2},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["count"], 3)
+        self.assertEqual(len(response.data["results"]), 2)
+        self.assertIsNotNone(response.data["next"])
+
+    def test_superuser_can_view_audit_event_details(self):
+        event = self.create_event(
+            "LOGIN_SUCCESS",
+            "Detailed audit event",
+            {
+                "username": "audit_api_target",
+                "password": "must-not-be-exposed",
+                "access_token": "must-not-be-exposed",
+                "nested": {
+                    "secret": "must-not-be-exposed",
+                    "status": "safe",
+                },
+            },
+        )
+
+        response = self.client.get(
+            f"{self.list_url}{event.pk}/"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["event_hash"], event.event_hash)
+
+        self.assertEqual(
+            response.data["metadata"]["username"],
+            "audit_api_target",
+        )
+
+        self.assertEqual(
+            response.data["metadata"]["nested"]["status"],
+            "safe",
+        )
+
+        self.assertNotIn("password", response.data["metadata"])
+        self.assertNotIn("access_token", response.data["metadata"])
+        self.assertNotIn("secret", response.data["metadata"]["nested"])
+
+    def test_missing_audit_event_returns_404(self):
+        response = self.client.get(
+            f"{self.list_url}999999/"
+        )
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_superuser_can_verify_audit_integrity(self):
+        self.create_event(
+            "LOGIN_SUCCESS",
+            "Integrity verification event",
+        )
+
+        response = self.client.get(self.integrity_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.data["valid"])
+        self.assertEqual(response.data["checked"], 1)
+
+    def test_integrity_endpoint_detects_tampering(self):
+        event = self.create_event(
+            "LOGIN_SUCCESS",
+            "Original audit event",
+        )
+
+        AuditEvent.objects.filter(pk=event.pk).update(
+            description="Tampered audit event",
+        )
+
+        response = self.client.get(self.integrity_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.data["valid"])
+        self.assertEqual(
+            response.data["invalid_event_id"],
+            event.pk,
+        )
+
+    def test_audit_get_endpoints_do_not_modify_events(self):
+        event = self.create_event(
+            "LOGIN_SUCCESS",
+            "Read-only verification",
+        )
+
+        original_hash = event.event_hash
+        original_description = event.description
+
+        self.client.get(self.list_url)
+        self.client.get(f"{self.list_url}{event.pk}/")
+        self.client.get(self.integrity_url)
+
+        event.refresh_from_db()
+
+        self.assertEqual(event.event_hash, original_hash)
+        self.assertEqual(event.description, original_description)
+
+    def test_ordinary_user_cannot_access_audit_endpoints(self):
+        ordinary = User.objects.create_user(
+            username="audit_api_ordinary",
+            password="TestPassword123!",
+        )
+
+        token = str(
+            RefreshToken.for_user(ordinary).access_token
+        )
+
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f"Bearer {token}"
+        )
+
+        self.assertEqual(
+            self.client.get(self.list_url).status_code,
+            403,
+        )
+
+        self.assertEqual(
+            self.client.get(self.integrity_url).status_code,
+            403,
         )
