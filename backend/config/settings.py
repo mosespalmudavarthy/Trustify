@@ -215,6 +215,8 @@ SIMPLE_JWT = {
 PRIVATE_STORAGE_ROOT = BASE_DIR.parent / "private_storage"
 
 # Production security settings.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 SECURE_SSL_REDIRECT = (
     os.environ.get('DJANGO_SECURE_SSL_REDIRECT', 'False').lower()
     == 'true'

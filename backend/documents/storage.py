@@ -1,18 +1,18 @@
-import hashlib
 import codecs
+import hashlib
+import os
 import re
 
+from functools import lru_cache
+from io import BytesIO
 from pathlib import Path
 from uuid import uuid4
 
-from django.conf import settings
-from django.core.files.storage import FileSystemStorage
+from django.core.files import File
+from django.core.files.storage import Storage
 
+from supabase import create_client
 
-private_storage = FileSystemStorage(
-    location=settings.PRIVATE_STORAGE_ROOT,
-    base_url=None,
-)
 
 MAX_FILE_SIZE = 20 * 1024 * 1024
 
@@ -27,6 +27,115 @@ ALLOWED_EXTENSIONS = {
 SAFE_STORAGE_KEY_PATTERN = re.compile(
     r'^documents/[0-9a-f]{32}\.(pdf|jpg|jpeg|png|txt)$'
 )
+
+
+@lru_cache(maxsize=1)
+def get_supabase_client():
+    url = os.environ.get('SUPABASE_URL')
+    key = os.environ.get('SUPABASE_SERVICE_ROLE_KEY')
+
+    if not url or not key:
+        raise RuntimeError(
+            'Supabase storage environment variables are missing.'
+        )
+
+    return create_client(url, key)
+
+
+def get_bucket():
+    bucket_name = os.environ.get(
+        'SUPABASE_STORAGE_BUCKET',
+        'trustify-documents'
+    )
+    return get_supabase_client().storage.from_(bucket_name)
+
+
+
+class SupabasePrivateStorage(Storage):
+    """
+    Django-compatible adapter for private Supabase Storage.
+    Files are accessed through the backend, never public URLs.
+    """
+
+    def _save(self, name, content):
+        if not SAFE_STORAGE_KEY_PATTERN.fullmatch(name):
+            raise ValueError('Invalid private storage key.')
+
+        extension = Path(name).suffix.lower()
+
+        if extension not in ALLOWED_EXTENSIONS:
+            raise ValueError('Unsupported file extension.')
+
+        payload = bytearray()
+
+        for chunk in content.chunks():
+            payload.extend(chunk)
+
+            if len(payload) > MAX_FILE_SIZE:
+                raise ValueError('Maximum file size is 20 MB.')
+
+        if not payload:
+            raise ValueError('Invalid file size.')
+
+        get_bucket().upload(
+            name,
+            bytes(payload),
+            {
+                'content-type': ALLOWED_EXTENSIONS[extension],
+                'cache-control': '3600',
+                'x-upsert': 'false',
+            }
+        )
+
+        return name
+
+    def exists(self, name):
+        if not isinstance(name, str):
+            return False
+
+        if not SAFE_STORAGE_KEY_PATTERN.fullmatch(name):
+            return False
+
+        try:
+            get_bucket().info(name)
+            return True
+
+        except Exception as exc:
+            status = getattr(exc, 'status', None)
+            code = str(getattr(exc, 'code', '')).lower()
+
+            if (
+                str(status) == '404'
+                or code in ('404', 'notfound', 'not_found')
+            ):
+                return False
+
+            raise
+
+    def _open(self, name, mode='rb'):
+        if mode != 'rb':
+            raise ValueError('Only binary read access is supported.')
+
+        if not isinstance(name, str):
+            raise ValueError('Invalid storage key.')
+
+        if not SAFE_STORAGE_KEY_PATTERN.fullmatch(name):
+            raise ValueError('Invalid storage key.')
+
+        data = get_bucket().download(name)
+
+        return File(BytesIO(data), name=name)
+
+    def delete(self, name):
+        if not isinstance(name, str):
+            return
+
+        if not SAFE_STORAGE_KEY_PATTERN.fullmatch(name):
+            return
+
+        get_bucket().remove([name])
+
+private_storage = SupabasePrivateStorage()
 
 
 def validate_file(uploaded_file):
@@ -46,9 +155,7 @@ def validate_file(uploaded_file):
         raise ValueError('File format is not supported.')
 
     uploaded_file.seek(0)
-
     header = uploaded_file.read(8)
-
     uploaded_file.seek(0)
 
     if extension == '.pdf':
@@ -138,7 +245,6 @@ def save_private_file(uploaded_file):
 
     if not SAFE_STORAGE_KEY_PATTERN.fullmatch(saved_name):
         private_storage.delete(saved_name)
-
         raise ValueError('Generated storage key is invalid.')
 
     return saved_name
@@ -147,8 +253,6 @@ def save_private_file(uploaded_file):
 def delete_private_file(storage_key):
     """
     Delete a private file only when no database record references it.
-
-    Returns True when deleted, False when retained or unavailable.
     """
 
     if not isinstance(storage_key, str):
@@ -157,16 +261,13 @@ def delete_private_file(storage_key):
     if not SAFE_STORAGE_KEY_PATTERN.fullmatch(storage_key):
         return False
 
-    # Import models locally to avoid circular imports.
     from .models import Document, DocumentVersion
 
-    # Never delete a file referenced by a document.
     if Document.objects.filter(
         storage_key=storage_key
     ).exists():
         return False
 
-    # Never delete a file referenced by a document version.
     if DocumentVersion.objects.filter(
         storage_key=storage_key
     ).exists():
