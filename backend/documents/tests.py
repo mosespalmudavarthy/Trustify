@@ -221,7 +221,41 @@ class DocumentAccessTests(TestCase):
         self.assertFalse(
             can_view_document(self.owner, self.document)
         )
+    def test_admin_cannot_view_deleted_document(self):
+        self.document.status = 'DELETED'
+        self.document.deleted_at = timezone.now()
+        self.document.save(update_fields=['status', 'deleted_at'])
 
+        self.assertFalse(
+            can_view_document(self.admin, self.document)
+        )
+
+    def test_owner_cannot_view_deleted_document(self):
+        self.document.status = 'DELETED'
+        self.document.deleted_at = timezone.now()
+        self.document.save(update_fields=['status', 'deleted_at'])
+
+        self.assertFalse(
+            can_view_document(self.owner, self.document)
+        )
+
+    def test_reader_cannot_view_deleted_document(self):
+        self.document.status = 'DELETED'
+        self.document.deleted_at = timezone.now()
+        self.document.save(update_fields=['status', 'deleted_at'])
+
+        self.assertFalse(
+            can_view_document(self.reader, self.document)
+        )
+
+    def test_admin_cannot_edit_deleted_document(self):
+        self.document.status = 'DELETED'
+        self.document.deleted_at = timezone.now()
+        self.document.save(update_fields=['status', 'deleted_at'])
+
+        self.assertFalse(
+            can_edit_document(self.admin, self.document)
+        )
 
 # ============================================================
 # DOCUMENT API ENDPOINT TESTS

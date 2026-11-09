@@ -38,17 +38,17 @@ def get_active_permission(user, document):
 
 def can_view_document(user, document):
     """
-    Determine whether the user can view a document.
+    Determine whether the authenticated user can view a document.
     """
 
     if not user.is_authenticated:
         return False
 
+    if document.status != 'ACTIVE' or document.deleted_at is not None:
+        return False
+
     if is_platform_admin(user):
         return True
-
-    if document.status != 'ACTIVE':
-        return False
 
     if is_document_owner(user, document):
         return True
@@ -60,20 +60,19 @@ def can_view_document(user, document):
         'EDIT'
     ]
 
-
 def can_edit_document(user, document):
     """
-    Determine whether the user can modify a document.
+    Determine whether the authenticated user can modify a document.
     """
 
     if not user.is_authenticated:
         return False
 
+    if document.status != 'ACTIVE' or document.deleted_at is not None:
+        return False
+
     if is_platform_admin(user):
         return True
-
-    if document.status != 'ACTIVE':
-        return False
 
     if is_document_owner(user, document):
         return True
@@ -84,8 +83,6 @@ def can_edit_document(user, document):
         permission is not None
         and permission.access_level == 'EDIT'
     )
-
-
 def can_manage_permissions(user, document):
     """
     Only the document owner or platform superuser
